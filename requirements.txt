@@ -1,0 +1,24 @@
+# Core Django
+Django==4.2.7
+python-dotenv==1.0.0
+
+# Database
+# SQLite встроен в Python
+
+# Task Queue
+celery==5.3.4
+redis==5.0.1
+
+# Telegram Bot
+# Используем >= для более гибкой установки (избегаем компиляции)
+aiogram>=3.1.1
+aiofiles>=23.1.0
+
+# Text-to-Speech
+gTTS==2.4.0
+
+# Image Processing
+Pillow==10.1.0
+
+# Utilities
+pytz==2023.3

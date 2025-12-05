@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ action }} карточку - LinguaTrack{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h2>{{ action }} карточку</h2>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="{{ form.word.id_for_label }}" class="form-label">{{ form.word.label }}</label>
+                        {{ form.word }}
+                        {% if form.word.errors %}
+                            <div class="text-danger">{{ form.word.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.translation.id_for_label }}" class="form-label">{{ form.translation.label }}</label>
+                        {{ form.translation }}
+                        {% if form.translation.errors %}
+                            <div class="text-danger">{{ form.translation.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.level.id_for_label }}" class="form-label">{{ form.level.label }}</label>
+                        {{ form.level }}
+                        {% if form.level.errors %}
+                            <div class="text-danger">{{ form.level.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.example.id_for_label }}" class="form-label">{{ form.example.label }}</label>
+                        {{ form.example }}
+                        {% if form.example.errors %}
+                            <div class="text-danger">{{ form.example.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.note.id_for_label }}" class="form-label">{{ form.note.label }}</label>
+                        {{ form.note }}
+                        {% if form.note.errors %}
+                            <div class="text-danger">{{ form.note.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> Сохранить
+                        </button>
+                        <a href="{% if card %}{% url 'cards:card_detail' card.pk %}{% else %}{% url 'cards:card_list' %}{% endif %}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Отмена
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

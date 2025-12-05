@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Тест: Множественный выбор - LinguaTrack{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h2><i class="bi bi-list-check"></i> Тест: Множественный выбор</h2>
+                {% if not single and remaining > 0 %}
+                    <small>Осталось карточек: {{ remaining }}</small>
+                {% endif %}
+            </div>
+            <div class="card-body text-center">
+                <h1 class="display-4 mb-4">{{ card.word }}</h1>
+                
+                {% if card.example %}
+                    <p class="text-muted mb-4">{{ card.example }}</p>
+                {% endif %}
+                
+                <p class="mb-4">Выбери правильный перевод:</p>
+                
+                <form method="post" action="{% url 'cards:submit_answer' card.pk %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="quality" id="quality_value" value="3">
+                    <div class="row g-2">
+                        {% for choice in choices %}
+                            <div class="col-md-6">
+                                <button type="button" 
+                                        class="btn btn-outline-primary w-100 choice-btn p-3"
+                                        data-translation="{{ choice.translation }}"
+                                        data-correct="{% if choice.pk == card.pk %}true{% else %}false{% endif %}">
+                                    {{ choice.translation }}
+                                </button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div id="result" class="mt-4" style="display: none;">
+                        <div id="result-message"></div>
+                        <button type="submit" class="btn btn-success mt-3">
+                            <i class="bi bi-arrow-right"></i> Следующая карточка
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.choice-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const isCorrect = this.dataset.correct === 'true';
+        const translation = this.dataset.translation;
+        
+        // Отключаем все кнопки
+        document.querySelectorAll('.choice-btn').forEach(b => {
+            b.disabled = true;
+            if (b === this) {
+                b.classList.remove('btn-outline-primary');
+                b.classList.add(isCorrect ? 'btn-success' : 'btn-danger');
+            } else if (b.dataset.correct === 'true') {
+                b.classList.remove('btn-outline-primary');
+                b.classList.add('btn-success');
+            } else {
+                b.classList.add('btn-secondary');
+            }
+        });
+        
+        // Устанавливаем качество ответа
+        const quality = isCorrect ? 5 : 0;
+        document.getElementById('quality_value').value = quality;
+        
+        // Показываем результат
+        const resultDiv = document.getElementById('result');
+        const messageDiv = document.getElementById('result-message');
+        if (isCorrect) {
+            messageDiv.innerHTML = '<div class="alert alert-success"><i class="bi bi-check-circle"></i> Правильно!</div>';
+        } else {
+            messageDiv.innerHTML = `<div class="alert alert-danger"><i class="bi bi-x-circle"></i> Неправильно! Правильный ответ: <strong>${translation}</strong></div>`;
+        }
+        resultDiv.style.display = 'block';
+    });
+});
+</script>
+{% endblock %}
+

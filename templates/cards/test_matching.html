@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}Тест: Сопоставление - LinguaTrack{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h2><i class="bi bi-arrow-left-right"></i> Тест: Сопоставление слов и переводов</h2>
+            </div>
+            <div class="card-body">
+                <p class="text-center mb-4">Сопоставь слова с их переводами, перетаскивая элементы</p>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Слова:</h5>
+                        <div id="words-container" class="list-group">
+                            {% for word in words %}
+                                <div class="list-group-item draggable-word" draggable="true" data-word="{{ word }}">
+                                    {{ word }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Переводы:</h5>
+                        <div id="translations-container" class="list-group">
+                            {% for translation in translations %}
+                                <div class="list-group-item droppable-translation" data-translation="{{ translation }}">
+                                    <span class="match-placeholder">Перетащи слово сюда</span>
+                                    <span class="matched-word" style="display: none;"></span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <button id="submit-btn" class="btn btn-success btn-lg" disabled>
+                        <i class="bi bi-check-circle"></i> Проверить ответы
+                    </button>
+                </div>
+                
+                <div id="result" class="mt-4" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const matches = {};
+let draggedWord = null;
+
+document.querySelectorAll('.draggable-word').forEach(word => {
+    word.addEventListener('dragstart', function(e) {
+        draggedWord = this.dataset.word;
+        this.style.opacity = '0.5';
+    });
+    
+    word.addEventListener('dragend', function() {
+        this.style.opacity = '1';
+    });
+});
+
+document.querySelectorAll('.droppable-translation').forEach(translation => {
+    translation.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.classList.add('bg-light');
+    });
+    
+    translation.addEventListener('dragleave', function() {
+        this.classList.remove('bg-light');
+    });
+    
+    translation.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('bg-light');
+        
+        if (draggedWord) {
+            const translationText = this.dataset.translation;
+            matches[draggedWord] = translationText;
+            
+            this.querySelector('.match-placeholder').style.display = 'none';
+            this.querySelector('.matched-word').textContent = draggedWord + ' → ' + translationText;
+            this.querySelector('.matched-word').style.display = 'block';
+            
+            // Удаляем слово из списка
+            document.querySelector(`[data-word="${draggedWord}"]`).remove();
+            
+            draggedWord = null;
+            
+            // Проверяем, все ли сопоставлено
+            if (Object.keys(matches).length === {{ words|length }}) {
+                document.getElementById('submit-btn').disabled = false;
+            }
+        }
+    });
+});
+
+document.getElementById('submit-btn').addEventListener('click', function() {
+    fetch('{% url "cards:submit_matching" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ matches: matches })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = `
+            <div class="alert alert-${data.percentage >= 70 ? 'success' : 'warning'}">
+                <h4>Результат: ${data.correct} из ${data.total}</h4>
+                <p>Процент правильных ответов: ${data.percentage}%</p>
+            </div>
+            <a href="{% url 'cards:card_list' %}" class="btn btn-primary">
+                <i class="bi bi-arrow-left"></i> Вернуться к карточкам
+            </a>
+        `;
+        resultDiv.style.display = 'block';
+        this.disabled = true;
+    });
+});
+</script>
+{% endblock %}
+

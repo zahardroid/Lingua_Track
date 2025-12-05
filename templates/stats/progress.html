@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}Прогресс - LinguaTrack{% endblock %}
+
+{% block content %}
+<h1><i class="bi bi-graph-up"></i> Мой прогресс</h1>
+
+<div class="row mt-4">
+    <div class="col-md-3 mb-3">
+        <div class="card text-center bg-primary text-white">
+            <div class="card-body">
+                <h2>{{ stats.total_words }}</h2>
+                <p class="mb-0">Всего слов</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center bg-success text-white">
+            <div class="card-body">
+                <h2>{{ stats.learned_words }}</h2>
+                <p class="mb-0">Изучено</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center bg-info text-white">
+            <div class="card-body">
+                <h2>{{ stats.total_reviews }}</h2>
+                <p class="mb-0">Повторений</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center bg-warning text-white">
+            <div class="card-body">
+                <h2>{{ success_rate }}%</h2>
+                <p class="mb-0">Успешность</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-bar-chart"></i> Статистика по уровням</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Начальный</span>
+                        <span class="badge bg-success">{{ level_stats.beginner|default:0 }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Средний</span>
+                        <span class="badge bg-warning">{{ level_stats.intermediate|default:0 }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Продвинутый</span>
+                        <span class="badge bg-danger">{{ level_stats.advanced|default:0 }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-calendar"></i> Активность</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Карточек на сегодня</span>
+                        <span class="badge bg-primary">{{ today_cards }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Повторений за неделю</span>
+                        <span class="badge bg-info">{{ recent_reviews }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Неправильных ответов</span>
+                        <span class="badge bg-danger">{{ stats.wrong_answers }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if recommendations %}
+    <div class="card mt-4">
+        <div class="card-header bg-info text-white">
+            <h5><i class="bi bi-lightbulb"></i> Рекомендации</h5>
+        </div>
+        <div class="card-body">
+            {% for rec in recommendations %}
+                <div class="alert alert-{% if rec.type == 'today' %}warning{% elif rec.type == 'low_success' %}danger{% else %}info{% endif %}">
+                    <i class="bi bi-arrow-right-circle"></i> {{ rec.message }}
+                    {% if rec.count > 0 %}
+                        <a href="{% url 'cards:card_list' %}?level={{ rec.type }}" class="btn btn-sm btn-outline-primary ms-2">
+                            Перейти
+                        </a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
+

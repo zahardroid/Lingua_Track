@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Импорт карточек - LinguaTrack{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="bi bi-upload"></i> Импорт карточек</h2>
+            </div>
+            <div class="card-body">
+                <p>Загрузите CSV файл с карточками. Формат:</p>
+                <ul>
+                    <li>Столбцы: Слово, Перевод, Пример, Заметка, Уровень</li>
+                    <li>Уровень: Начальный, Средний, Продвинутый</li>
+                    <li>Пример и Заметка - опциональны</li>
+                </ul>
+                
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="file" class="form-label">CSV файл</label>
+                        <input type="file" class="form-control" id="file" name="file" accept=".csv" required>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-upload"></i> Импортировать
+                        </button>
+                        <a href="{% url 'cards:card_list' %}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Отмена
+                        </a>
+                    </div>
+                </form>
+                
+                <hr>
+                <p class="text-muted">
+                    <small>
+                        <i class="bi bi-info-circle"></i> 
+                        Пример CSV файла можно получить, экспортировав существующие карточки.
+                    </small>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

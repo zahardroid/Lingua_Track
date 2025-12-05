@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Карточки на сегодня - LinguaTrack{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="bi bi-calendar-check"></i> Карточки на сегодня</h1>
+    {% if count > 0 %}
+        <a href="{% url 'cards:test_mode' %}" class="btn btn-success btn-lg">
+            <i class="bi bi-play-circle"></i> Начать тест ({{ count }})
+        </a>
+    {% endif %}
+</div>
+
+{% if cards %}
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> У вас <strong>{{ count }}</strong> карточек для повторения сегодня.
+    </div>
+
+    <div class="row">
+        {% for card in cards %}
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ card.word }}</h5>
+                        <p class="card-text text-muted">{{ card.translation }}</p>
+                        {% if card.schedule %}
+                            <small class="text-muted">
+                                Повторений: {{ card.schedule.repetitions }} | 
+                                Интервал: {{ card.schedule.interval }} дн.
+                            </small>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer">
+                        <a href="{% url 'cards:test_mode' card.pk %}" class="btn btn-sm btn-success">
+                            <i class="bi bi-check-circle"></i> Тест
+                        </a>
+                        <a href="{% url 'cards:card_detail' card.pk %}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye"></i> Просмотр
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-success">
+        <i class="bi bi-check-circle"></i> Отлично! У вас нет карточек для повторения сегодня.
+        <a href="{% url 'cards:card_list' %}">Посмотреть все карточки</a>
+    </div>
+{% endif %}
+{% endblock %}
+

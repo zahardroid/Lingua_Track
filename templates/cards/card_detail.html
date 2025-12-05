@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ card.word }} - LinguaTrack{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2>{{ card.word }}</h2>
+        <div>
+            <a href="{% url 'cards:card_update' card.pk %}" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-pencil"></i> Редактировать
+            </a>
+            <a href="{% url 'cards:card_delete' card.pk %}" class="btn btn-sm btn-outline-danger">
+                <i class="bi bi-trash"></i> Удалить
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <h4 class="text-primary">{{ card.translation }}</h4>
+        </div>
+        
+        <div class="mb-3">
+            <span class="badge bg-{% if card.level == 'beginner' %}success{% elif card.level == 'intermediate' %}warning{% else %}danger{% endif %} fs-6">
+                {{ card.get_level_display }}
+            </span>
+        </div>
+
+        {% if card.example %}
+            <div class="mb-3">
+                <h5>Пример:</h5>
+                <p class="text-muted">{{ card.example }}</p>
+            </div>
+        {% endif %}
+
+        {% if card.note %}
+            <div class="mb-3">
+                <h5>Заметка:</h5>
+                <p class="text-muted">{{ card.note }}</p>
+            </div>
+        {% endif %}
+
+        <div class="mb-3">
+            <button class="btn btn-primary" onclick="playAudio('{{ card.word }}')">
+                <i class="bi bi-volume-up"></i> Озвучить слово
+            </button>
+        </div>
+
+        {% if schedule %}
+            <hr>
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Расписание повторений:</h5>
+                    <ul class="list-unstyled">
+                        <li><strong>Следующее повторение:</strong> {{ schedule.next_review_at|date:"d.m.Y H:i" }}</li>
+                        <li><strong>Интервал:</strong> {{ schedule.interval }} дн.</li>
+                        <li><strong>Повторений:</strong> {{ schedule.repetitions }}</li>
+                        <li><strong>Фактор легкости:</strong> {{ schedule.easiness_factor|floatformat:2 }}</li>
+                    </ul>
+                    <a href="{% url 'cards:update_schedule' card.pk %}" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-calendar-event"></i> Изменить дату повторения
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    <div class="card-footer">
+        <a href="{% url 'cards:test_mode' card.pk %}" class="btn btn-success">
+            <i class="bi bi-check-circle"></i> Протестировать
+        </a>
+        <a href="{% url 'cards:card_list' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Назад к списку
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function playAudio(word) {
+    const audioUrl = `/cards/say/${encodeURIComponent(word)}/`;
+    const audio = new Audio(audioUrl);
+    audio.play().catch(err => {
+        console.error('Ошибка воспроизведения:', err);
+        alert('Не удалось воспроизвести аудио');
+    });
+}
+</script>
+{% endblock %}
+

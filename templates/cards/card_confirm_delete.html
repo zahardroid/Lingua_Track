@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Удалить карточку - LinguaTrack{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h2><i class="bi bi-exclamation-triangle"></i> Удаление карточки</h2>
+            </div>
+            <div class="card-body">
+                <p>Вы уверены, что хотите удалить карточку <strong>{{ card.word }}</strong>?</p>
+                <p class="text-muted">Это действие нельзя отменить.</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Да, удалить
+                        </button>
+                        <a href="{% url 'cards:card_detail' card.pk %}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Отмена
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
